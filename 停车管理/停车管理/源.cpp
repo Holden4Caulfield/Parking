@@ -1,6 +1,8 @@
 #include<iostream>
 #include<stdlib.h>
 #include<string>
+#include<ctime>
+#include<Windows.h>
 using namespace std;
 #define OK		1
 #define ERROR	0
@@ -16,6 +18,8 @@ typedef struct car
 	float cost;
 	int locate; //车位
 	int dir;    //入口方向（0为南，1为北）
+	struct tm indeque, star, end;               //indeque开始排队时时间,star开始计费时时间，end离开时时间
+	bool vip;                                //是否为vip,vip可以少收钱
 } car;
 
 typedef struct LNode             
@@ -53,10 +57,37 @@ bool Park_full()
 	//车站满，返回true
 	return true;
 }
-int compare()
+car compare()
 {
-	//毕竟南北入口第一辆车的开始等待时间，先来先进，返回先进入的入口序号
-	return 0;
+	//比较南北入口第一辆车的开始等待时间，决定进入的车辆
+	LNode *s, *n; int n;
+	s = In_deque_south->next;
+	n = In_deque_north->next;
+	if (difftime(mktime(&s->BWM.indeque), mktime(&n->BWM.indeque)))
+	{
+		//设置时间
+		time_t timep;
+		time(&timep);
+		n->BWM.star = *localtime(&timep);
+		return n->BWM;
+	}
+	else
+	{
+		time_t timep;
+		time(&timep);
+		s->BWM.star = *localtime(&timep);
+		return s->BWM;
+	}
+}
+void money_pay(LNode *p)
+{
+	//付钱
+	time_t timep;
+	time(&timep);
+	p->BWM.end = *localtime(&timep);
+	double cost;
+	cost = difftime(mktime(&p->BWM.end), mktime(&p->BWM.star));
+	cout << "应付金额 :" << cost << endl;
 }
 void goout()
 {
@@ -81,6 +112,7 @@ void goout()
 				e->next = p->next->next;
 				//p = p->next;
 				//free(p);
+				money_pay(p->next);
 				cout << "ok，该车辆已从停车场驶出" << endl;
 				//node = 1;
 				return;
@@ -101,6 +133,7 @@ void goout()
 				e->next = p->next->next;
 				//p = p->next;
 				//free(p);
+				money_pay(p->next);
 				cout << "ok,该车辆已从停车场驶出" << endl;
 				//node = 1;
 				return;
@@ -118,6 +151,11 @@ void In_deque(Link &In_deque_north,Link &In_deque_south)
 	//增加一辆在排队的车辆
 	LNode *e; LNode *p;
 	e = new LNode;
+	//设置时间
+	time_t timep;
+	time(&timep);
+	e->BWM.indeque = *localtime(&timep);
+	//输入车的信息
 	cout << endl;
 	cout << "请输入车牌 : "; cin >> e->BWM.ID;
 	cout << "请输入方向（0为南，1为北）"; cin >> e->BWM.dir;

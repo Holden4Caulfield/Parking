@@ -27,7 +27,7 @@ typedef struct LNode
 Link In_deque_north;//在排队的车的链表,north
 Link In_deque_south;//在排队的车的链表,south
 Link In_Park;//在停车场内的车
-
+int node;            //判断车辆是否存在，存在1，否则0
 int place()
 {
 	//查找第一个空出的车位
@@ -61,6 +61,57 @@ int compare()
 void goout()
 {
 	//停车场内车辆驶出
+	cout << "1.车位" << endl;
+	cout << "2.车牌" << endl;
+	string N; int locat,n;
+	cin >> n;
+	switch (n)
+	{
+	case 1:
+	{
+		LNode *p,*e;
+		cout << "输入车位" << endl;
+		cin >> locat;
+		p = In_Park;
+		while (p->next)
+		{
+			if (p->next->BWM.locate == locat)
+			{
+				e = p;
+				e->next = p->next->next;
+				//p = p->next;
+				//free(p);
+				cout << "ok，该车辆已从停车场驶出" << endl;
+				//node = 1;
+				return;
+			}
+		}
+	}break;
+	case 2:
+	{
+		LNode *p, *e;
+		cout << "输入车牌" << endl;
+		cin >> N;
+		p = In_Park;
+		while (p->next)
+		{
+			if (p->next->BWM.ID == N)
+			{
+				e = p;
+				e->next = p->next->next;
+				//p = p->next;
+				//free(p);
+				cout << "ok,该车辆已从停车场驶出" << endl;
+				//node = 1;
+				return;
+			}
+		}
+	}
+		break;
+	default:
+		break;
+	}
+	cout << "无此车信息" << endl;
 }
 void In_deque(Link &In_deque_north,Link &In_deque_south)
 {
@@ -138,18 +189,51 @@ void Increase()
 }
 void delet_indeque(Link &In_deque_north, Link &In_deque_south)
 {
-	cout << "输入离开的车车牌号,入口位置（南0北1）" << endl;
+	cout << "输入离开的车车牌号" << endl;
 	string N;int direction,tap=0;
-	cin >> N >> direction;
-	if (direction)
+	cin >> N;
+	cout << endl;
+	cout << "入口位置（南0北1）" << endl;
+	cin >> direction;
+	if (direction==1)
 	{
-		LNode *p;
-		p = In_deque_north->next;
-		while (p)
+		//北入口的车
+		LNode *p,*e;
+		p = In_deque_north;
+		while (p->next)
 		{
-			if(p->BWM.ID==N)
+			if (p->next->BWM.ID == N)
+			{
+				e = p;
+				e->next = p->next->next;
+				//p = p->next;
+				//free(p);
+				cout << "ok" << endl;
+				node = 1;
+				return;
+			}
 		}
 	}
+	else
+	{
+		LNode *p, *e;
+		p = In_deque_south;
+		while (p->next)
+		{
+			if (p->next->BWM.ID == N)
+			{
+				e = p;
+				e->next = p->next->next;
+				//p = p->next;
+				//free(p);
+				cout << "ok" << endl;
+				node = 1;
+				return;
+			}
+			p = p->next;
+		}
+	}
+	cout << "无该车辆信息" << endl;
 }
 void Decrease()
 {
@@ -165,8 +249,9 @@ void Decrease()
 	default:
 		break;
 	}
-	cout << "OK" << endl;
-	cout << "这辆车已经滚了" << endl;
+	if(node)cout << "OK,这辆车已经滚了" << endl;
+	if (node)node = 1;
+	//cout << "这辆车已经滚了" << endl;
 	
 }
 void menu()
@@ -188,7 +273,7 @@ void menu()
 		{
 		case 1:Increase(); break;
 		case 2:goout(); break;
-		case 3:delet_indeque(In_deque_north, In_deque_south); break;
+		case 3:Decrease(); break;
 		case 4:OutPut(In_deque_north, In_deque_south); break;
 		case 10086:return;
 		default:
@@ -205,11 +290,6 @@ void menu()
 int main()
 {
 	menu();
-	//sl L;
-	//L = (sl)malloc(sizeof(sq));
-	/*L = new sq;
-	cin >> L->s.ji;
-	delete L;*/
 	delete In_deque_north;
 	delete In_deque_south;
 	system("pause");

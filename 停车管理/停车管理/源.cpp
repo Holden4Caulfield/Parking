@@ -21,7 +21,6 @@ typedef struct car
 	struct tm indeque, star, end;               //indeque开始排队时时间,star开始计费时时间，end离开时时间
 	bool vip;                                //是否为vip,vip可以少收钱
 } car;
-
 typedef struct LNode             
 {
 	//排队进站
